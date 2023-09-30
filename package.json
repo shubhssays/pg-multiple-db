@@ -1,0 +1,13 @@
+{
+  "name": "pg-multiple-db-migrate",
+  "version": "1.0.0",
+  "description": "This library is specifically meant for postgresql only. It only generates the structure and code to maintain multiple databases. It's important to note that this library needs \"node-pg-migrate\" library and \"dotenv\" library to run migration.",
+  "main": "index.js",
+  "scripts": {
+  },
+  "keywords": [
+    "pg-multiple-db"
+  ],
+  "author": "Shubham Kumar Shukla",
+  "license": "MIT"
+}
