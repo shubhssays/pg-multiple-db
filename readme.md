@@ -7,7 +7,7 @@ This library is specifically meant for postgresql only. It only generates the st
 ```sh
 npm i pg-multiple-migrate
 
-1. const {init, exec} = require("pg-multiple-db-migrate");
+1. const {init, exec} = require("pg-multiple-migrate");
 
 2. Run init function to intialize the library once which will create "pg-multiple-db.json" file at the root folder. This function should be executed only once. It will look like 
 [
