@@ -1,11 +1,11 @@
-# pg-multiple-db-migrate
+# pg-multiple-migrate
 
 This library is specifically meant for postgresql only. It only generates the structure and code to maintain multiple databases. It's important to note that this library needs \"node-pg-migrate\" library and \"dotenv\" library to run migration.
 
 ## Installation
 
 ```sh
-npm i pg-multiple-db-migrate
+npm i pg-multiple-migrate
 
 1. const {init, exec} = require("pg-multiple-db-migrate");
 
