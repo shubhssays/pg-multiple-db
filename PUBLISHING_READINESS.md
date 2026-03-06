@@ -1,6 +1,17 @@
 # Publishing Readiness Summary
 
-## ✅ Completed Tasks
+> **⚠️ Note:** This package is for personal use and installed from GitHub only.
+> npm publishing has been disabled. This document is kept for reference.
+
+## Installation
+
+```bash
+npm install github:shubhssays/pg-multiple-db
+```
+
+---
+
+## ✅ Completed Tasks (Reference Only)
 
 ### 1. Package Configuration
 - ✅ `.npmignore` created - properly excludes source/test files

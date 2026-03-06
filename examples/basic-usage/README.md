@@ -6,6 +6,7 @@ This example demonstrates how to use `pg-multiple-migrate` to manage migrations 
 
 1. **Install Dependencies**
    ```bash
+   # Note: pg-multiple-migrate is installed from GitHub
    npm install
    ```
 

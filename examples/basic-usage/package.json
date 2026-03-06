@@ -11,7 +11,7 @@
     "start": "node src/index.js"
   },
   "dependencies": {
-    "pg-multiple-migrate": "^2.0.0",
+    "pg-multiple-migrate": "github:shubhssays/pg-multiple-db",
     "dotenv": "^16.4.5",
     "node-pg-migrate": "^7.0.0"
   }

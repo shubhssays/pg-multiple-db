@@ -31,6 +31,7 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
+    "prepare": "npm run build",
     "type-check": "tsc --noEmit",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
@@ -39,13 +40,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "prepublishOnly": "npm run type-check && npm run lint && npm run test && npm run build",
-    "clean": "rm -rf dist",
-    "prepack": "npm run build",
-    "release:patch": "npm version patch && git push --follow-tags",
-    "release:minor": "npm version minor && git push --follow-tags",
-    "release:major": "npm version major && git push --follow-tags",
-    "release:dry": "npm publish --dry-run"
+    "clean": "rm -rf dist"
   },
   "keywords": [
     "postgresql",

@@ -1,8 +1,44 @@
 # Publishing Guide
 
-This document describes the process for publishing new versions of `pg-multiple-migrate` to npm.
+> **⚠️ Note:** This package is for personal use only and is **NOT published to npm**.
+> It is installed directly from GitHub. This document is kept for reference only.
 
-## Prerequisites
+## Installation from GitHub
+
+Users install directly from the repository:
+
+```bash
+# Install latest from master
+npm install github:shubhssays/pg-multiple-db
+
+# Install specific version tag
+npm install github:shubhssays/pg-multiple-db#v2.0.0
+```
+
+The `prepare` script in package.json automatically builds the package on installation.
+
+## Version Management
+
+For version tracking, use Git tags:
+
+```bash
+# Update version in package.json
+npm version patch  # or minor, or major
+
+# Push with tags
+git push --follow-tags
+
+# Users can then install specific version
+npm install github:shubhssays/pg-multiple-db#v2.0.1
+```
+
+---
+
+## Original npm Publishing Process (Reference Only)
+
+This section is kept for reference but not used.
+
+### Prerequisites (Not Applicable)
 
 - npm account with publish access
 - Two-factor authentication enabled

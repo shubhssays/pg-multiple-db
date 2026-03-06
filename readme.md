@@ -1,7 +1,5 @@
 # pg-multiple-migrate
 
-[![npm version](https://img.shields.io/npm/v/pg-multiple-migrate.svg)](https://www.npmjs.com/package/pg-multiple-migrate)
-[![npm downloads](https://img.shields.io/npm/dm/pg-multiple-migrate.svg)](https://www.npmjs.com/package/pg-multiple-migrate)
 [![CI](https://github.com/shubhssays/pg-multiple-db/actions/workflows/ci.yml/badge.svg)](https://github.com/shubhssays/pg-multiple-db/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/node/v/pg-multiple-migrate.svg)](https://nodejs.org)
@@ -9,6 +7,8 @@
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
 Modern TypeScript library for managing multiple PostgreSQL database migrations with [node-pg-migrate](https://github.com/salsita/node-pg-migrate). Supports both CommonJS and ES modules.
+
+> **Note:** This package is for personal use and installed directly from GitHub.
 
 ## Features
 
@@ -24,12 +24,20 @@ Modern TypeScript library for managing multiple PostgreSQL database migrations w
 ## Installation
 
 ```bash
-npm install pg-multiple-migrate dotenv node-pg-migrate
-# or
-yarn add pg-multiple-migrate dotenv node-pg-migrate
-# or
-pnpm add pg-multiple-migrate dotenv node-pg-migrate
+# Install from GitHub (automatically builds on install)
+npm install github:shubhssays/pg-multiple-db dotenv node-pg-migrate
+
+# Or with specific version tag
+npm install github:shubhssays/pg-multiple-db#v2.0.0 dotenv node-pg-migrate
+
+# Or using yarn
+yarn add github:shubhssays/pg-multiple-db dotenv node-pg-migrate
+
+# Or using pnpm
+pnpm add github:shubhssays/pg-multiple-db dotenv node-pg-migrate
 ```
+
+The `prepare` script automatically builds the package after installation.
 
 ### Peer Dependencies
 
