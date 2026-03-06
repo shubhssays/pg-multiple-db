@@ -18,7 +18,7 @@ Modern TypeScript library for managing multiple PostgreSQL database migrations w
 🛠️ **CLI & API** - Use as a command-line tool or integrate programmatically  
 🔄 **Cross-Platform** - Works on macOS, Linux, and Windows  
 📦 **Zero Config** - Sensible defaults with optional customization  
-🧪 **Well-Tested** - Comprehensive test coverage  
+🧪 **Well-Tested** - Comprehensive test coverage with [real database integration tests](INTEGRATION.md)  
 📝 **Validation** - Runtime validation with helpful error messages  
 
 ## Installation
@@ -614,6 +614,8 @@ See the [examples directory](./examples/) for complete working examples:
 - Integration with existing projects
 - TypeScript usage
 
+**Integration Testing:** See [INTEGRATION.md](INTEGRATION.md) for comprehensive guide on running integration tests with real PostgreSQL databases.
+
 ## Contributing
 
 Contributions are welcome! Please:
@@ -649,6 +651,33 @@ npm run lint
 # Format
 npm run format
 ```
+
+### Integration Testing
+
+Run integration tests against real PostgreSQL databases:
+
+```bash
+# Start PostgreSQL
+docker run -d --name postgresql-db -e POSTGRES_PASSWORD=change_me -p 5432:5432 postgres:17
+
+# Setup test databases
+cd test-integration
+node setup-databases.js
+
+# Run migrations
+npm run migrate:all:up
+```
+
+For complete integration testing guide, see [INTEGRATION.md](INTEGRATION.md).
+
+## Documentation
+
+- **[README.md](README.md)** - Main documentation (you are here)
+- **[INTEGRATION.md](INTEGRATION.md)** - Integration testing guide with real PostgreSQL
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Developer guidelines and coding standards
+- **[PUBLISHING.md](PUBLISHING.md)** - Release workflow and publishing guide
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history and release notes
+- **[examples/](examples/)** - Working examples and usage patterns
 
 ## License
 
