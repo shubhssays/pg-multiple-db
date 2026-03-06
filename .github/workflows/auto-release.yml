@@ -1,0 +1,80 @@
+name: Auto Release
+
+on:
+  workflow_run:
+    workflows: ["CI/CD"]
+    types:
+      - completed
+    branches:
+      - master
+
+jobs:
+  auto-version:
+    name: Auto Version and Tag
+    runs-on: ubuntu-latest
+    
+    # Only run on successful CI completion for push events (not PRs)
+    if: |
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      !contains(github.event.workflow_run.head_commit.message, '[skip ci]') &&
+      !contains(github.event.workflow_run.head_commit.message, 'chore(release)')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for tags
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Make script executable
+        run: chmod +x scripts/auto-version.sh
+      
+      - name: Run auto-versioning script
+        id: version
+        run: |
+          bash scripts/auto-version.sh
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "new_version=${NEW_VERSION}" >> $GITHUB_OUTPUT
+      
+      - name: Push changes and tags
+        run: |
+          git push origin master --follow-tags
+          echo "✓ Pushed version bump and tags to master"
+      
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.version.outputs.new_version }}
+          release_name: Release v${{ steps.version.outputs.new_version }}
+          body: |
+            ## Changes
+            
+            Auto-generated release for version ${{ steps.version.outputs.new_version }}.
+            
+            ### Installation
+            
+            Install directly from GitHub:
+            ```bash
+            npm install github:shubhssays/pg-multiple-db#v${{ steps.version.outputs.new_version }}
+            ```
+            
+            Or use the latest version:
+            ```bash
+            npm install github:shubhssays/pg-multiple-db
+            ```
+            
+            See the [commit history](https://github.com/shubhssays/pg-multiple-db/commits/v${{ steps.version.outputs.new_version }}) for details.
+          draft: false
+          prerelease: false

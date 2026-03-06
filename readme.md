@@ -624,6 +624,50 @@ See the [examples directory](./examples/) for complete working examples:
 
 **Integration Testing:** See [INTEGRATION.md](INTEGRATION.md) for comprehensive guide on running integration tests with real PostgreSQL databases.
 
+## Versioning and Releases
+
+This project uses an **automated versioning system** that creates new releases when CI passes on master:
+
+### Automatic Releases
+
+- ✅ **Triggers after successful CI**: New versions are created automatically
+- 🏷️ **Version tags**: Git tags (e.g., `v2.1.0`) are created for each release
+- 📦 **GitHub Releases**: Release notes are auto-generated with installation instructions
+- 🔄 **Conventional Commits**: Version bump type determined from commit messages
+
+### Installing Specific Versions
+
+```bash
+# Latest version
+npm install github:shubhssays/pg-multiple-db
+
+# Specific release
+npm install github:shubhssays/pg-multiple-db#v2.0.1
+
+# From branch
+npm install github:shubhssays/pg-multiple-db#master
+```
+
+### Commit Message Format
+
+Use [Conventional Commits](https://www.conventionalcommits.org/) for automatic version bumping:
+
+```bash
+# Patch version (2.0.0 → 2.0.1)
+fix: resolve migration ordering issue
+chore: update dependencies
+
+# Minor version (2.0.0 → 2.1.0)  
+feat: add PostgreSQL 17 support
+feat(cli): add --dry-run flag
+
+# Major version (2.0.0 → 3.0.0)
+BREAKING CHANGE: remove Node 14 support
+feat!: redesign configuration format
+```
+
+See [scripts/README.md](scripts/README.md) for complete auto-versioning documentation.
+
 ## Contributing
 
 Contributions are welcome! Please:
