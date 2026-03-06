@@ -8,6 +8,9 @@ on:
     branches:
       - master
 
+permissions:
+  contents: write
+
 jobs:
   auto-version:
     name: Auto Version and Tag
@@ -26,12 +29,18 @@ jobs:
         with:
           fetch-depth: 0  # Fetch all history for tags
           token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
           cache: 'npm'
+      
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
       
       - name: Install dependencies
         run: npm ci

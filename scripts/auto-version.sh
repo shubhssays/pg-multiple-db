@@ -51,10 +51,6 @@ NEW_VERSION=${NEW_VERSION#v} # Remove 'v' prefix
 
 echo -e "${GREEN}New version: ${NEW_VERSION}${NC}"
 
-# Configure git (for GitHub Actions)
-git config --global user.name "github-actions[bot]"
-git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
 # Commit the version bump
 git add package.json package-lock.json
 git commit -m "chore(release): bump version to ${NEW_VERSION} [skip ci]"
