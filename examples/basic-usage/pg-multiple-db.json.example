@@ -1,0 +1,18 @@
+[
+  {
+    "unique_identity": "users_db",
+    "env_db_username": "USERS_DB_USERNAME",
+    "env_db_host": "USERS_DB_HOST",
+    "env_db_name": "USERS_DB_NAME",
+    "env_db_port": "USERS_DB_PORT",
+    "env_db_password": "USERS_DB_PASSWORD"
+  },
+  {
+    "unique_identity": "products_db",
+    "env_db_username": "PRODUCTS_DB_USERNAME",
+    "env_db_host": "PRODUCTS_DB_HOST",
+    "env_db_name": "PRODUCTS_DB_NAME",
+    "env_db_port": "PRODUCTS_DB_PORT",
+    "env_db_password": "PRODUCTS_DB_PASSWORD"
+  }
+]

@@ -1,0 +1,18 @@
+{
+  "name": "pg-multiple-migrate-example",
+  "version": "1.0.0",
+  "description": "Example project demonstrating pg-multiple-migrate usage",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "pg:init": "pg-multi-migrate init",
+    "pg:exec": "pg-multi-migrate exec",
+    "pg:status": "pg-multi-migrate status",
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "pg-multiple-migrate": "^2.0.0",
+    "dotenv": "^16.4.5",
+    "node-pg-migrate": "^7.0.0"
+  }
+}

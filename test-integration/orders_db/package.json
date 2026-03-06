@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "node-pg-migrate": "^7.0.0"
+  },
+  "scripts": {
+    "migrate": "node-pg-migrate",
+    "orders_db-migrate-create": "node migrationRunner.js create",
+    "orders_db-migrate-up": "node migrationRunner.js up",
+    "orders_db-migrate-down": "node migrationRunner.js down"
+  }
+}

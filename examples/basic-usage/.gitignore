@@ -1,0 +1,14 @@
+# Node modules
+node_modules/
+
+# Environment
+.env
+
+# Generated files
+pg-multiple-db.json
+db_migrate_*.cjs
+users_db/
+products_db/
+
+# OS
+.DS_Store

@@ -1,13 +1,100 @@
 {
   "name": "pg-multiple-migrate",
-  "version": "1.0.0",
-  "description": "This library is specifically meant for postgresql only. It only generates the structure and code to maintain multiple databases. It's important to note that this library needs \"node-pg-migrate\" library and \"dotenv\" library to run migration.",
-  "main": "index.js",
+  "version": "2.0.0",
+  "description": "Modern TypeScript library for managing multiple PostgreSQL database migrations with node-pg-migrate. Supports both CommonJS and ES modules.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "pg-multi-migrate": "./dist/cli/index.js",
+    "pmm": "./dist/cli/index.js"
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "prepublishOnly": "npm run type-check && npm run lint && npm run test && npm run build",
+    "clean": "rm -rf dist",
+    "prepack": "npm run build",
+    "release:patch": "npm version patch && git push --follow-tags",
+    "release:minor": "npm version minor && git push --follow-tags",
+    "release:major": "npm version major && git push --follow-tags",
+    "release:dry": "npm publish --dry-run"
   },
   "keywords": [
-    "pg-multiple-migrate"
+    "postgresql",
+    "postgres",
+    "migration",
+    "migrations",
+    "database",
+    "multi-database",
+    "node-pg-migrate",
+    "typescript",
+    "cli"
   ],
   "author": "Shubham Kumar Shukla",
-  "license": "MIT"
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "peerDependencies": {
+    "dotenv": "^16.0.0",
+    "node-pg-migrate": "^6.0.0 || ^7.0.0"
+  },
+  "dependencies": {
+    "commander": "^12.0.0",
+    "cross-spawn": "^7.0.3",
+    "pino": "^8.19.0",
+    "pino-pretty": "^11.0.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/cross-spawn": "^6.0.6",
+    "@types/node": "^20.11.24",
+    "@typescript-eslint/eslint-plugin": "^7.1.0",
+    "@typescript-eslint/parser": "^7.1.0",
+    "@vitest/coverage-v8": "^1.3.1",
+    "dotenv": "^16.4.5",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "node-pg-migrate": "^7.0.0",
+    "prettier": "^3.2.5",
+    "tsup": "^8.0.2",
+    "typescript": "^5.3.3",
+    "vitest": "^1.3.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shubhssays/pg-multiple-db.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shubhssays/pg-multiple-db/issues"
+  },
+  "homepage": "https://github.com/shubhssays/pg-multiple-db#readme"
 }

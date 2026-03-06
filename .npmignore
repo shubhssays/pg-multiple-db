@@ -1,0 +1,73 @@
+# Source files
+src/
+tests/
+test-integration/
+
+# Configuration files
+.eslintrc.*
+.prettierrc
+tsconfig.json
+tsup.config.ts
+vitest.config.ts
+
+# Development files
+*.test.ts
+*.spec.ts
+*.test.js
+*.spec.js
+
+# Build artifacts that shouldn't be published
+*.tsbuildinfo
+coverage/
+.nyc_output/
+
+# Environment files
+.env
+.env.*
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# CI/CD
+.github/
+
+# Documentation (if you want to exclude, but usually included)
+# docs/
+
+# Examples (if not needed in package)
+# examples/
+
+# Test artifacts
+test-integration/
+pg-multiple-db.json
+db_migrate_*/
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# npm
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Misc
+*.log
+.cache/
+*.tmp

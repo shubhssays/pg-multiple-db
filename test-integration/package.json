@@ -1,0 +1,27 @@
+{
+  "name": "test-integration",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "node-pg-migrate": "^7.0.0",
+    "pg": "^8.11.3"
+  },
+  "scripts": {
+    "migrate:users_db:create": "node db_migrate_users_db.cjs create",
+    "migrate:users_db:up": "node db_migrate_users_db.cjs up",
+    "migrate:users_db:down": "node db_migrate_users_db.cjs down",
+    "migrate:products_db:create": "node db_migrate_products_db.cjs create",
+    "migrate:products_db:up": "node db_migrate_products_db.cjs up",
+    "migrate:products_db:down": "node db_migrate_products_db.cjs down",
+    "migrate:orders_db:create": "node db_migrate_orders_db.cjs create",
+    "migrate:orders_db:up": "node db_migrate_orders_db.cjs up",
+    "migrate:orders_db:down": "node db_migrate_orders_db.cjs down",
+    "migrate:inventory_db:create": "node db_migrate_inventory_db.cjs create",
+    "migrate:inventory_db:up": "node db_migrate_inventory_db.cjs up",
+    "migrate:inventory_db:down": "node db_migrate_inventory_db.cjs down",
+    "migrate:analytics_db:create": "node db_migrate_analytics_db.cjs create",
+    "migrate:analytics_db:up": "node db_migrate_analytics_db.cjs up",
+    "migrate:analytics_db:down": "node db_migrate_analytics_db.cjs down"
+  }
+}
