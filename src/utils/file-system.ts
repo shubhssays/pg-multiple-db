@@ -112,7 +112,11 @@ export function isLibraryInstalled(libraryName: string): boolean {
     // Check if library is in package.json dependencies
     const packageJsonPath = joinPath(process.cwd(), 'package.json');
     if (existsSync(packageJsonPath)) {
-      const pkg = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+      const pkg = JSON.parse(readFileSync(packageJsonPath, 'utf-8')) as {
+        dependencies?: Record<string, string>;
+        devDependencies?: Record<string, string>;
+        peerDependencies?: Record<string, string>;
+      };
       const deps = {
         ...pkg.dependencies,
         ...pkg.devDependencies,
