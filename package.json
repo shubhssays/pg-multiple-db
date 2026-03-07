@@ -1,6 +1,6 @@
 {
   "name": "pg-multiple-migrate",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Modern TypeScript library for managing multiple PostgreSQL database migrations with node-pg-migrate. Supports both CommonJS and ES modules.",
   "type": "module",
   "main": "./dist/index.cjs",
