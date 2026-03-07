@@ -51,11 +51,18 @@ export interface ExecutionSummary {
 }
 
 /**
+ * Package manager types
+ */
+export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun';
+
+/**
  * Options for the init command
  */
 export interface InitOptions {
   force?: boolean;
   configPath?: string;
+  /** Optional root directory where all migration files will be generated */
+  rootPath?: string;
 }
 
 /**
@@ -64,6 +71,10 @@ export interface InitOptions {
 export interface ExecOptions {
   configPath?: string;
   dryRun?: boolean;
+  /** Optional root directory where all migration files will be generated */
+  rootPath?: string;
+  /** Package manager to use (auto-detected if not specified) */
+  packageManager?: PackageManager;
 }
 
 /**

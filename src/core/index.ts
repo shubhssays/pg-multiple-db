@@ -3,6 +3,7 @@ import type {
   ExecOptions,
   ExecutionSummary,
   ExecutionResult,
+  PackageManager,
 } from '../types/index.js';
 import { ConfigValidator } from './config-validator.js';
 import { MigrationGenerator } from './migration-generator.js';
@@ -14,8 +15,10 @@ import {
   joinPath,
   getCwd,
   isLibraryInstalled,
+  ensureDir,
 } from '../utils/file-system.js';
 import { getLogger } from '../utils/logger.js';
+import { detectPackageManager } from '../utils/package-manager.js';
 
 export class PgMultipleMigrate {
   private cwd: string;
@@ -31,8 +34,17 @@ export class PgMultipleMigrate {
   async init(options: InitOptions = {}): Promise<void> {
     this.checkDependencies();
 
+    // Determine the root path for migrations
+    const rootPath = options.rootPath || this.cwd;
+    
+    // Ensure root path exists
+    if (options.rootPath) {
+      await ensureDir(rootPath);
+      this.logger.info(`Using root path: ${rootPath}`);
+    }
+
     const configPath =
-      options.configPath || joinPath(this.cwd, ConfigValidator.getConfigFileName());
+      options.configPath || joinPath(rootPath, ConfigValidator.getConfigFileName());
 
     const fileExists = await exists(configPath);
 
@@ -59,14 +71,29 @@ export class PgMultipleMigrate {
   async exec(options: ExecOptions = {}): Promise<ExecutionSummary> {
     this.checkDependencies();
 
+    // Determine the root path for migrations
+    const rootPath = options.rootPath || this.cwd;
+    
+    // Ensure root path exists
+    if (options.rootPath) {
+      await ensureDir(rootPath);
+      this.logger.info(`Using root path: ${rootPath}`);
+    }
+
     const configPath =
-      options.configPath || joinPath(this.cwd, ConfigValidator.getConfigFileName());
+      options.configPath || joinPath(rootPath, ConfigValidator.getConfigFileName());
 
     // Read and validate configuration
     const config = await readJsonFile<unknown>(configPath);
     const validatedConfig = ConfigValidator.validateOrThrow(config);
 
-    const generator = new MigrationGenerator(this.cwd);
+    // Detect or use provided package manager
+    const packageManager: PackageManager = 
+      options.packageManager || await detectPackageManager(rootPath);
+    
+    this.logger.info(`Using package manager: ${packageManager}`);
+
+    const generator = new MigrationGenerator(this.cwd, rootPath, packageManager);
     const results: ExecutionResult[] = [];
 
     for (const dbConfig of validatedConfig) {

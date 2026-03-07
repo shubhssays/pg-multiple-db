@@ -17,6 +17,7 @@ export type {
   MigrationAction,
   LogLevel,
   LoggerOptions,
+  PackageManager,
 } from './types/index.js';
 
 // Export errors

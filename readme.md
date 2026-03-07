@@ -13,6 +13,7 @@ Modern TypeScript library for managing multiple PostgreSQL database migrations w
 ## Features
 
 ✨ **Multi-Database Support** - Manage migrations for multiple PostgreSQL databases from a single project  
+🏗️ **Monorepo Ready** - Automatic package manager detection (npm, yarn, pnpm, bun) and custom root paths  
 🔒 **Type-Safe** - Full TypeScript support with comprehensive type definitions  
 🚀 **Modern** - ES modules with CommonJS compatibility  
 🛠️ **CLI & API** - Use as a command-line tool or integrate programmatically  
@@ -140,6 +141,108 @@ npm run migrate:users_db:up
 npm run migrate:users_db:down
 ```
 
+## Monorepo Support
+
+pg-multiple-migrate supports monorepo setups with automatic package manager detection and customizable root paths.
+
+### Package Manager Auto-Detection
+
+The tool automatically detects your package manager by checking lockfiles:
+
+- **pnpm** - Detects `pnpm-lock.yaml`
+- **yarn** - Detects `yarn.lock`
+- **npm** - Detects `package-lock.json` or used as default
+- **bun** - Detects `bun.lockb`
+
+Generated scripts will use the appropriate package manager commands:
+
+```bash
+# pnpm uses --filter
+pnpm --filter ./users_db run users_db-migrate-up
+
+# yarn uses --cwd
+yarn --cwd users_db run users_db-migrate-up
+
+# npm uses --prefix
+npm --prefix users_db run users_db-migrate-up
+```
+
+### Custom Root Path
+
+You can isolate all migration files in a dedicated subfolder using the `--root` option:
+
+```bash
+# Initialize with custom root path
+npx pg-multi-migrate init --root ./migrations
+
+# Generate migrations in custom root
+npx pg-multi-migrate exec --root ./migrations
+
+# Check status with custom root
+npx pg-multi-migrate status --root ./migrations
+```
+
+This creates the following structure:
+
+```
+your-project/
+├── migrations/                    # Custom root folder
+│   ├── pg-multiple-db.json       # Config file
+│   ├── package.json              # Migration scripts
+│   ├── users_db/                 # Database folder
+│   │   ├── package.json
+│   │   ├── migrationRunner.js
+│   │   └── migrations/
+│   ├── products_db/
+│   │   ├── package.json
+│   │   ├── migrationRunner.js
+│   │   └── migrations/
+│   ├── db_migrate_users_db.cjs
+│   └── db_migrate_products_db.cjs
+├── src/
+├── .env
+└── package.json                   # Main project package.json
+```
+
+### Monorepo Example with pnpm
+
+For a pnpm workspace monorepo:
+
+```bash
+# 1. Initialize in a dedicated folder
+npx pg-multi-migrate init --root ./packages/migrations
+
+# 2. Configure your databases in packages/migrations/pg-multiple-db.json
+# 3. Generate migration structure
+npx pg-multi-migrate exec --root ./packages/migrations
+
+# 4. Run migrations (pnpm auto-detected)
+cd packages/migrations
+pnpm run migrate:users_db:up
+```
+
+### Override Package Manager
+
+You can override the auto-detected package manager:
+
+```bash
+# Force npm even if pnpm-lock.yaml exists
+npx pg-multi-migrate exec --package-manager npm
+
+# Use pnpm explicitly
+npx pg-multi-migrate exec --package-manager pnpm --root ./migrations
+
+# Valid options: npm, yarn, pnpm, bun
+```
+
+### Monorepo Best Practices
+
+1. **Dedicated migrations folder**: Use `--root` to keep migrations separate from application code
+2. **Package manager consistency**: Let auto-detection handle package manager selection
+3. **Environment variables**: Keep `.env` at workspace root or in migrations folder
+4. **Version control**: Commit generated `package.json` in migrations folder
+5. **CI/CD**: Reference the root path in your deployment scripts
+
 ## CLI Reference
 
 ### Commands
@@ -155,11 +258,15 @@ pg-multi-migrate init [options]
 **Options:**
 - `-f, --force` - Overwrite existing configuration file
 - `-c, --config <path>` - Custom configuration file path
+- `-r, --root <path>` - Root directory for migration files (creates if missing)
 
 **Examples:**
 ```bash
 # Create new config
 pg-multi-migrate init
+
+# Initialize in a custom root folder
+pg-multi-migrate init --root ./migrations
 
 # Force overwrite existing config
 pg-multi-migrate init --force
@@ -178,6 +285,8 @@ pg-multi-migrate exec [options]
 
 **Options:**
 - `-c, --config <path>` - Custom configuration file path
+- `-r, --root <path>` - Root directory for migration files (creates if missing)
+- `-p, --package-manager <pm>` - Package manager to use (npm, yarn, pnpm, bun)
 - `--dry-run` - Preview changes without executing
 
 **Examples:**
@@ -185,11 +294,17 @@ pg-multi-migrate exec [options]
 # Generate migration structure
 pg-multi-migrate exec
 
+# Use custom root path
+pg-multi-migrate exec --root ./migrations
+
+# Override package manager detection
+pg-multi-migrate exec --package-manager pnpm
+
 # Preview what would be generated
 pg-multi-migrate exec --dry-run
 
-# Use custom config
-pg-multi-migrate exec --config ./config/databases.json
+# Combine options
+pg-multi-migrate exec --root ./db --package-manager pnpm --dry-run
 ```
 
 #### `status`
@@ -202,11 +317,15 @@ pg-multi-migrate status [options]
 
 **Options:**
 - `-c, --config <path>` - Custom configuration file path
+- `-r, --root <path>` - Root directory for migration files
 
 **Examples:**
 ```bash
 # Check status
 pg-multi-migrate status
+
+# Check status with custom root
+pg-multi-migrate status --root ./migrations
 ```
 
 ### Global Options
@@ -270,8 +389,9 @@ Initialize the configuration file.
 
 ```typescript
 interface InitOptions {
-  force?: boolean;        // Overwrite existing file
-  configPath?: string;    // Custom config file path
+  force?: boolean;          // Overwrite existing file
+  configPath?: string;      // Custom config file path
+  rootPath?: string;        // Root directory for migration files
 }
 ```
 
@@ -281,15 +401,19 @@ Execute migration setup for all databases.
 
 ```typescript
 interface ExecOptions {
-  configPath?: string;    // Custom config file path
-  dryRun?: boolean;       // Preview without executing
+  configPath?: string;      // Custom config file path
+  dryRun?: boolean;         // Preview without executing
+  rootPath?: string;        // Root directory for migration files
+  packageManager?: PackageManager;  // Override package manager detection
 }
 
+type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun';
+
 interface ExecutionSummary {
-  total: number;          // Total configurations
-  executed: number;       // Successfully executed
-  skipped: number;        // Skipped (already exist)
-  failed: number;         // Failed executions
+  total: number;            // Total configurations
+  executed: number;         // Successfully executed
+  skipped: number;          // Skipped (already exist)
+  failed: number;           // Failed executions
   results: ExecutionResult[];
 }
 ```

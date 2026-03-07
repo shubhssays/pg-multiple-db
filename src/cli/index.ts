@@ -3,6 +3,8 @@
 import { Command } from 'commander';
 import { PgMultipleMigrate } from '../core/index.js';
 import { createLogger } from '../utils/logger.js';
+import { ConfigValidator } from '../core/config-validator.js';
+import { readJsonFile, joinPath, getCwd, exists } from '../utils/file-system.js';
 import type { LogLevel } from '../types/index.js';
 
 const program = new Command();
@@ -31,12 +33,14 @@ program
   .description('Initialize pg-multiple-db.json configuration file')
   .option('-f, --force', 'Overwrite existing configuration file')
   .option('-c, --config <path>', 'Custom configuration file path')
-  .action(async (options: { force?: boolean; config?: string }) => {
+  .option('-r, --root <path>', 'Root directory for migration files (creates if missing)')
+  .action(async (options: { force?: boolean; config?: string; root?: string }) => {
     try {
       const migrator = new PgMultipleMigrate();
       await migrator.init({
         force: options.force,
         configPath: options.config,
+        rootPath: options.root,
       });
     } catch (error) {
       const logger = createLogger();
@@ -49,12 +53,25 @@ program
   .command('exec')
   .description('Execute migration setup for all configured databases')
   .option('-c, --config <path>', 'Custom configuration file path')
+  .option('-r, --root <path>', 'Root directory for migration files (creates if missing)')
+  .option('-p, --package-manager <pm>', 'Package manager to use (npm, yarn, pnpm, bun)')
   .option('--dry-run', 'Preview changes without executing')
-  .action(async (options: { config?: string; dryRun?: boolean }) => {
+  .action(async (options: { config?: string; root?: string; packageManager?: string; dryRun?: boolean }) => {
     try {
       const migrator = new PgMultipleMigrate();
+      
+      // Validate package manager option
+      const validPackageManagers = ['npm', 'yarn', 'pnpm', 'bun'];
+      if (options.packageManager && !validPackageManagers.includes(options.packageManager)) {
+        const logger = createLogger();
+        logger.error(`Invalid package manager: ${options.packageManager}. Valid options: ${validPackageManagers.join(', ')}`);
+        process.exit(1);
+      }
+      
       const summary = await migrator.exec({
         configPath: options.config,
+        rootPath: options.root,
+        packageManager: options.packageManager as 'npm' | 'yarn' | 'pnpm' | 'bun' | undefined,
         dryRun: options.dryRun,
       });
 
@@ -72,13 +89,13 @@ program
   .command('status')
   .description('Show status of migration configurations')
   .option('-c, --config <path>', 'Custom configuration file path')
-  .action(async (options: { config?: string }) => {
+  .option('-r, --root <path>', 'Root directory for migration files')
+  .action(async (options: { config?: string; root?: string }) => {
     try {
       const logger = createLogger();
-      const { ConfigValidator } = await import('../core/config-validator.js');
-      const { readJsonFile, joinPath, getCwd, exists } = await import('../utils/file-system.js');
       
-      const configPath: string = options.config || joinPath(getCwd(), ConfigValidator.getConfigFileName());
+      const rootPath = options.root || getCwd();
+      const configPath: string = options.config || joinPath(rootPath, ConfigValidator.getConfigFileName());
       
       if (!(await exists(configPath))) {
         logger.error(`Configuration file not found: ${configPath}`);
@@ -92,7 +109,7 @@ program
       logger.info(`Found ${validatedConfig.length} database configuration(s):`);
       
       for (const dbConfig of validatedConfig) {
-        const folderPath: string = joinPath(getCwd(), dbConfig.unique_identity);
+        const folderPath: string = joinPath(rootPath, dbConfig.unique_identity);
         const folderExists = await exists(folderPath);
         const status = folderExists ? '✓ Generated' : '✗ Not generated';
         logger.info(`  ${status} - ${dbConfig.unique_identity}`);
@@ -105,3 +122,4 @@ program
   });
 
 program.parse();
+

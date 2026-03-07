@@ -1,4 +1,4 @@
-import type { DatabaseConfig } from '../types/index.js';
+import type { DatabaseConfig, PackageManager } from '../types/index.js';
 import {
   exists,
   ensureDir,
@@ -9,20 +9,25 @@ import {
   getCwd,
 } from '../utils/file-system.js';
 import { getLogger } from '../utils/logger.js';
+import { getRunMigrateCommand, getPrefixCommand } from '../utils/package-manager.js';
 
 export class MigrationGenerator {
   private cwd: string;
+  private rootPath: string;
+  private packageManager: PackageManager;
   private logger = getLogger();
 
-  constructor(cwd?: string) {
+  constructor(cwd?: string, rootPath?: string, packageManager: PackageManager = 'npm') {
     this.cwd = cwd || getCwd();
+    this.rootPath = rootPath || this.cwd;
+    this.packageManager = packageManager;
   }
 
   /**
    * Check if a database folder already exists
    */
   async folderExists(identity: string): Promise<boolean> {
-    const folderPath = joinPath(this.cwd, identity);
+    const folderPath = joinPath(this.rootPath, identity);
     return exists(folderPath);
   }
 
@@ -53,6 +58,7 @@ export class MigrationGenerator {
    */
   private generateMigrationRunner(config: DatabaseConfig): string {
     const { unique_identity, env_db_username, env_db_host, env_db_name, env_db_port, env_db_password } = config;
+    const runMigrateCmd = getRunMigrateCommand(this.packageManager);
 
     return `require("dotenv").config();
 const { exec } = require('child_process');
@@ -92,8 +98,8 @@ function up() {
   let commandSignature = \`DATABASE_URL=postgres://\${databaseUsername}:\${databasePassword}@\${databaseHost}:\${databasePort}/\${databaseName}\`;
   commandSignature = commandSignature.replace(/ /g, '');
   const command = process.platform === 'win32' 
-    ? \`set \${commandSignature}&&npm run migrate up\`
-    : \`\${commandSignature} npm run migrate up\`;
+    ? \`set \${commandSignature}&&${runMigrateCmd} up\`
+    : \`\${commandSignature} ${runMigrateCmd} up\`;
   
   exec(command, (error, stdout, stderr) => {
     if (stderr) {
@@ -112,8 +118,8 @@ function down() {
   let commandSignature = \`DATABASE_URL=postgres://\${databaseUsername}:\${databasePassword}@\${databaseHost}:\${databasePort}/\${databaseName}\`;
   commandSignature = commandSignature.replace(/ /g, '');
   const command = process.platform === 'win32'
-    ? \`set \${commandSignature}&&npm run migrate down\`
-    : \`\${commandSignature} npm run migrate down\`;
+    ? \`set \${commandSignature}&&${runMigrateCmd} down\`
+    : \`\${commandSignature} ${runMigrateCmd} down\`;
   
   exec(command, (error, stdout, stderr) => {
     if (stderr) {
@@ -129,7 +135,7 @@ function down() {
 }
 
 function create(migration_name) {
-  exec(\`npm run migrate create \${migration_name}\`, (error, stdout, stderr) => {
+  exec(\`${runMigrateCmd} create \${migration_name}\`, (error, stdout, stderr) => {
     if (stderr) {
       console.error(stderr);
       process.exit(1);
@@ -168,11 +174,14 @@ if (process.argv[2] === 'up') {
    * Generate root-level runner script for a database
    */
   private generateRootRunner(identity: string): string {
+    const prefixCmd = getPrefixCommand(this.packageManager, identity);
+    const pmName = this.packageManager;
+
     return `require("dotenv").config();
 const { exec } = require('child_process');
 
 function up() {
-  exec('npm --prefix ${identity} run ${identity}-migrate-up', (error, stdout, stderr) => {
+  exec('${pmName} ${prefixCmd} run ${identity}-migrate-up', (error, stdout, stderr) => {
     if (stderr) {
       console.error(stderr);
       process.exit(1);
@@ -186,7 +195,7 @@ function up() {
 }
 
 function down() {
-  exec('npm --prefix ${identity} run ${identity}-migrate-down', (error, stdout, stderr) => {
+  exec('${pmName} ${prefixCmd} run ${identity}-migrate-down', (error, stdout, stderr) => {
     if (stderr) {
       console.error(stderr);
       process.exit(1);
@@ -200,7 +209,7 @@ function down() {
 }
 
 function create(migration_file_name) {
-  exec(\`npm --prefix ${identity} run ${identity}-migrate-create \${migration_file_name}\`, (error, stdout, stderr) => {
+  exec(\`${pmName} ${prefixCmd} run ${identity}-migrate-create \${migration_file_name}\`, (error, stdout, stderr) => {
     if (stderr) {
       console.error(stderr);
       process.exit(1);
@@ -253,7 +262,7 @@ if (action === 'up') {
     }
 
     // Create database folder
-    const dbFolderPath = joinPath(this.cwd, unique_identity);
+    const dbFolderPath = joinPath(this.rootPath, unique_identity);
     await ensureDir(dbFolderPath);
 
     // Create package.json in database folder
@@ -267,7 +276,7 @@ if (action === 'up') {
     await writeFile(migrationRunnerPath, migrationRunnerContent);
 
     // Create root-level runner script
-    const rootRunnerPath = joinPath(this.cwd, `db_migrate_${unique_identity}.cjs`);
+    const rootRunnerPath = joinPath(this.rootPath, `db_migrate_${unique_identity}.cjs`);
     const rootRunnerContent = this.generateRootRunner(unique_identity);
     await writeFile(rootRunnerPath, rootRunnerContent);
 
@@ -281,11 +290,28 @@ if (action === 'up') {
    * Update root package.json with migration scripts
    */
   private async updateRootPackageJson(identity: string): Promise<void> {
-    const packageJsonPath = joinPath(this.cwd, 'package.json');
-    const packageJson = await readJsonFile<{
+    const packageJsonPath = joinPath(this.rootPath, 'package.json');
+    
+    let packageJson: {
       scripts?: Record<string, string>;
       [key: string]: unknown;
-    }>(packageJsonPath);
+    };
+
+    // Check if package.json exists in rootPath
+    if (await exists(packageJsonPath)) {
+      packageJson = await readJsonFile<{
+        scripts?: Record<string, string>;
+        [key: string]: unknown;
+      }>(packageJsonPath);
+    } else {
+      // Create a minimal package.json if it doesn't exist
+      packageJson = {
+        name: 'database-migrations',
+        version: '1.0.0',
+        private: true,
+        scripts: {},
+      };
+    }
 
     const scripts: Record<string, string> = packageJson.scripts || {};
     const valueIntermediate = `db_migrate_${identity}.cjs`;
